@@ -9,7 +9,8 @@
     "lint": "eslint './src/**/*.{js,jsx,ts,tsx}' && echo 'Linting is complete!'",
     "lint:fix": "eslint -fix .",
     "format:fix": "npx prettier . --write",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "cd .. && husky install class-components/.husky"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -27,6 +28,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "globals": "^15.8.0",
+    "husky": "^9.0.11",
     "prettier": "3.3.2",
     "typescript": "^5.2.2",
     "typescript-eslint": "^7.15.0",

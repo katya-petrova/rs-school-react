@@ -10,7 +10,7 @@
     "lint:fix": "eslint -fix .",
     "format:fix": "npx prettier . --write",
     "preview": "vite preview",
-    "prepare": "cd .. && husky install class-components/.husky"
+    "prepare": "cd .. && husky class-components/.husky"
   },
   "dependencies": {
     "react": "^18.3.1",

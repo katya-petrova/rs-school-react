@@ -1,7 +1,7 @@
-import React from 'react';
-import './App.css';
-import MainPage from './views/MainPage/MainPage';
-import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import React from "react";
+import "./App.css";
+import MainPage from "./views/MainPage/MainPage";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 
 class App extends React.Component {
   render() {

@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint './src/**/*.{js,jsx,ts,tsx}' && echo 'Linting is complete!'",
+    "lint:fix": "eslint -fix .",
+    "format:fix": "npx prettier . --write",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -25,6 +27,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "globals": "^15.8.0",
+    "prettier": "3.3.2",
     "typescript": "^5.2.2",
     "typescript-eslint": "^7.15.0",
     "vite": "^5.3.1"

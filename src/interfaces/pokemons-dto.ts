@@ -1,4 +1,4 @@
 export interface PokemonsDto {
-  name: string;
-  url: string;
+  name: string
+  url: string
 }

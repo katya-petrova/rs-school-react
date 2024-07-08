@@ -13,7 +13,7 @@ export interface Result {
   sprites: Sprites;
 }
 
-interface Abilities {
+export interface Abilities {
   ability: Ability;
 }
 
@@ -21,7 +21,7 @@ interface Ability {
   name: string;
 }
 
-interface Types {
+export interface Types {
   type: Type;
 }
 

@@ -1,13 +1,19 @@
-import React from "react";
-import "./SearchInput.css";
+import React from 'react'
+import './SearchInput.css'
 
 interface SearchInputProps {
-  term: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSearch: () => void;
+  term: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onSearch: () => void
 }
 
 class SearchInput extends React.Component<SearchInputProps> {
+  handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      this.props.onSearch()
+    }
+  }
+
   render() {
     return (
       <div className="search">
@@ -16,12 +22,13 @@ class SearchInput extends React.Component<SearchInputProps> {
           type="text"
           value={this.props.term}
           onChange={this.props.onChange}
+          onKeyPress={this.handleKeyPress}
           placeholder="Type pokemon name e.g. raticate"
         />
         <button onClick={this.props.onSearch}>Search</button>
       </div>
-    );
+    )
   }
 }
 
-export default SearchInput;
+export default SearchInput

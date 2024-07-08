@@ -1,9 +1,9 @@
-import React from "react";
-import "./SearchResults.css";
-import { Result } from "../../interfaces/results";
+import React from 'react'
+import './SearchResults.css'
+import { Result } from '../../interfaces/results'
 
 interface SearchResultsProps {
-  results: Result[];
+  results: Result[]
 }
 
 class SearchResults extends React.Component<SearchResultsProps> {
@@ -15,19 +15,19 @@ class SearchResults extends React.Component<SearchResultsProps> {
             <div key={result.id} className="pokemon-item">
               <div className="pokemon-name">
                 <h2>{result.name}</h2>
-                <img src={result.image} alt="pokemon image" />{" "}
+                <img src={result.image} alt="pokemon image" />{' '}
               </div>
 
               <div className="pokemon-description">
                 <p>
-                  <b>Abilities:</b>{" "}
+                  <b>Abilities:</b>{' '}
                   {result.abilities
                     .map((ability) => ability.ability.name)
-                    .join(", ")}
+                    .join(', ')}
                 </p>
                 <p>
-                  <b>Types:</b>{" "}
-                  {result.types.map((type) => type.type.name).join(", ")}
+                  <b>Types:</b>{' '}
+                  {result.types.map((type) => type.type.name).join(', ')}
                 </p>
                 <p>
                   <b>Height:</b> {result.height}
@@ -37,11 +37,11 @@ class SearchResults extends React.Component<SearchResultsProps> {
                 </p>
               </div>
             </div>
-          );
+          )
         })}
       </div>
-    );
+    )
   }
 }
 
-export default SearchResults;
+export default SearchResults

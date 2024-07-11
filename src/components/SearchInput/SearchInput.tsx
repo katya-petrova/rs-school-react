@@ -7,28 +7,26 @@ interface SearchInputProps {
   onSearch: () => void
 }
 
-class SearchInput extends React.Component<SearchInputProps> {
-  handleKeyPress = (event: React.KeyboardEvent) => {
+const SearchInput: React.FC<SearchInputProps> = (props) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
-      this.props.onSearch()
+      props.onSearch()
     }
   }
 
-  render() {
-    return (
-      <div className="search">
-        <input
-          className="search-input"
-          type="text"
-          value={this.props.term}
-          onChange={this.props.onChange}
-          onKeyPress={this.handleKeyPress}
-          placeholder="Type pokemon name e.g. raticate"
-        />
-        <button onClick={this.props.onSearch}>Search</button>
-      </div>
-    )
-  }
+  return (
+    <div className="search">
+      <input
+        className="search-input"
+        type="text"
+        value={props.term}
+        onChange={props.onChange}
+        onKeyDown={handleKeyDown}
+        placeholder="Type pokemon name e.g. raticate"
+      />
+      <button onClick={props.onSearch}>Search</button>
+    </div>
+  )
 }
 
 export default SearchInput

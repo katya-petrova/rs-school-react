@@ -5,23 +5,22 @@ export function usePagination(defaultPage = 0) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getNewPage = () => {
-    const rawPage = new URLSearchParams(location.search).get('page');
-    return rawPage ? parseInt(rawPage, 10) - 1 : defaultPage;
-  };
+  const rawPage = new URLSearchParams(location.search).get('page');
+  const currentPage = rawPage ? parseInt(rawPage, 10) - 1 : defaultPage;
 
-  const [pageNumber, setPageNumber] = useState(() => getNewPage());
+  const [pageNumber, setPageNumber] = useState(currentPage);
 
   useEffect(() => {
     navigate(`/?page=${pageNumber + 1}`, { replace: true });
   }, [pageNumber, navigate]);
 
   useEffect(() => {
-    const newPage = getNewPage();
+    const rawPage = new URLSearchParams(location.search).get('page');
+    const newPage = rawPage ? parseInt(rawPage, 10) - 1 : 0;
     if (newPage !== pageNumber) {
       setPageNumber(newPage);
     }
-  }, [location.search, pageNumber]);
+  }, [location.search]);
 
   return { pageNumber, setPageNumber };
 }

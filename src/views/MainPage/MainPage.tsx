@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MainPage.css';
 import SearchInput from '../../components/SearchInput/SearchInput';
 import SearchResults from '../../components/SearchResults/SearchResults';
 import { fetchByName, fetchPokemons } from '../../services/apiService';
 import { Result } from '../../interfaces/results';
 import { usePagination } from '../../hooks/pagination-hook';
+import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/local-storage-hook';
 
 const MainPage: React.FC = () => {
+  const location = useLocation();
   const [term, setTerm] = useLocalStorage('term', '');
   const [results, setResults] = useState<Result[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -17,15 +19,29 @@ const MainPage: React.FC = () => {
   const { pageNumber: currentPage, setPageNumber: setCurrentPage } =
     usePagination();
 
+  useEffect(() => {
+    if (!term) {
+      loadAllPokemons();
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
+    const rawPage = new URLSearchParams(location.search).get('page');
+    const newPage = rawPage ? parseInt(rawPage, 10) - 1 : 0;
+    if (newPage !== currentPage) {
+      setCurrentPage(newPage);
+    }
+  }, [location.search]);
+
   const PAGE_SIZE = 6;
 
-  const loadAllPokemons = useCallback(async () => {
+  const loadAllPokemons = async () => {
     setIsLoading(true);
     const data = await fetchPokemons(PAGE_SIZE, currentPage * PAGE_SIZE);
     setIsLoading(false);
     setResults(data.results);
     setTotalPages(Math.ceil(data.count / PAGE_SIZE));
-  }, [currentPage]);
+  };
 
   const search = async (term: string) => {
     setIsLoading(true);
@@ -56,12 +72,6 @@ const MainPage: React.FC = () => {
   const prevPage = () => {
     setCurrentPage((page) => page - 1);
   };
-
-  useEffect(() => {
-    if (!term) {
-      loadAllPokemons();
-    }
-  }, [currentPage, loadAllPokemons, term]);
 
   if (shouldThrowError) {
     throw new Error('This is a test error.');

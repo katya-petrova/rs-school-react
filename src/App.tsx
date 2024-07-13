@@ -2,14 +2,17 @@ import React from 'react'
 import './App.css'
 import MainPage from './views/MainPage/MainPage'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
+import { BrowserRouter as Router } from 'react-router-dom'
 
 const App: React.FC = () => {
   return (
-    <ErrorBoundary>
-      <div className="App">
-        <MainPage />
-      </div>
-    </ErrorBoundary>
+    <Router>
+      <ErrorBoundary>
+        <div className="App">
+          <MainPage />
+        </div>
+      </ErrorBoundary>
+    </Router>
   )
 }
 

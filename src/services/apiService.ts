@@ -3,8 +3,8 @@ import { Result } from '../interfaces/results'
 
 const API_URL = 'https://pokeapi.co/api/v2/pokemon'
 
-export const fetchPokemons = async () => {
-  const response = await fetch(API_URL)
+export const fetchPokemons = async (limit: number, offset: number) => {
+  const response = await fetch(`${API_URL}/?limit=${limit}&offset=${offset}`)
   const data = await response.json()
   const pokemons = data.results
 
@@ -15,12 +15,12 @@ export const fetchPokemons = async () => {
       return extractPokemonData(detailsData)
     })
   )
-  return detailedPokemons
+  return { results: detailedPokemons, count: data.count }
 }
 
 export const fetchByName = async (name: string) => {
   if (!name) {
-    return fetchPokemons()
+    return fetchPokemons(100, 0)
   }
   const response = await fetch(`${API_URL}/${name}`)
   const data = await response.json()

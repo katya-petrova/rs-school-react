@@ -1,34 +1,36 @@
 export interface SearchResultsProps {
-  results: Result[]
+  results: Result[];
 }
 
 export interface Result {
-  id: string
-  name: string
-  weight: string
-  image: string
-  abilities: Abilities[]
-  height: string
-  types: Types[]
-  sprites: Sprites
+  id: string;
+  name: string;
+  weight: string;
+  image: string;
+  back_view: string;
+  abilities: Abilities[];
+  height: string;
+  types: Types[];
+  sprites: Sprites;
 }
 
 export interface Abilities {
-  ability: Ability
+  ability: Ability;
 }
 
 interface Ability {
-  name: string
+  name: string;
 }
 
 export interface Types {
-  type: Type
+  type: Type;
 }
 
 interface Type {
-  name: string
+  name: string;
 }
 
 interface Sprites {
-  front_shiny: string
+  front_shiny: string;
+  back_shiny: string;
 }

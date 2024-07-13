@@ -1,19 +1,22 @@
-.top-panel {
+.details-card {
   display: flex;
-  gap: 10px;
+  width: 350px;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 0 15px;
+  margin-top: 59px;
+  transition: 0.3s;
+  flex-direction: column;
+  position: relative;
+  height: 425px;
+  position: sticky;
+  top: 0;
 }
 
-.results {
+.view-details {
   display: flex;
-  gap: 30px;
-  justify-content: space-evenly;
-}
-
-.nav-buttons {
-  margin: 20px 0 0;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
+  width: 100%;
+  justify-content: space-around;
 }
 
 .spinner {
@@ -21,10 +24,10 @@
   width: 1em;
   height: 1em;
   border-radius: 50%;
-  position: relative;
-  text-indent: -9999em;
-  position: fixed;
+  position: absolute;
   top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   left: 50%;
   animation: mulShdSpin 1.1s infinite ease;
   transform: translateZ(0);
@@ -119,4 +122,14 @@
       -2.6em 0em 0 0em rgba(255, 255, 255, 0.7),
       -1.8em -1.8em 0 0em #ffffff;
   }
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 }

@@ -7,6 +7,7 @@ import { Result } from '../../interfaces/results';
 import { usePagination } from '../../hooks/pagination-hook';
 import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/local-storage-hook';
+import PokemonDetailPage from '../PokemonDetailsPage/PokemonDetailsPage';
 
 const MainPage: React.FC = () => {
   const location = useLocation();
@@ -15,6 +16,7 @@ const MainPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [shouldThrowError, setShouldThrowError] = useState<boolean>(false);
   const [totalPages, setTotalPages] = useState(0);
+  const [selectedPokemon, setSelectedPokemon] = useState<string | null>(null);
 
   const { pageNumber: currentPage, setPageNumber: setCurrentPage } =
     usePagination();
@@ -26,11 +28,14 @@ const MainPage: React.FC = () => {
   }, [currentPage]);
 
   useEffect(() => {
-    const rawPage = new URLSearchParams(location.search).get('page');
+    const params = new URLSearchParams(location.search);
+    const rawPage = params.get('page');
+    const newPokemon = params.get('pokemon');
     const newPage = rawPage ? parseInt(rawPage, 10) - 1 : 0;
     if (newPage !== currentPage) {
       setCurrentPage(newPage);
     }
+    setSelectedPokemon(newPokemon);
   }, [location.search]);
 
   const PAGE_SIZE = 6;
@@ -66,11 +71,11 @@ const MainPage: React.FC = () => {
   };
 
   const nextPage = () => {
-    setCurrentPage((page) => page + 1);
+    setCurrentPage(currentPage + 1);
   };
 
   const prevPage = () => {
-    setCurrentPage((page) => page - 1);
+    setCurrentPage(currentPage - 1);
   };
 
   if (shouldThrowError) {
@@ -89,15 +94,18 @@ const MainPage: React.FC = () => {
         </section>
         <button onClick={throwError}>Throw Error</button>
       </div>
-      <section>
+      <section className="results">
         {isLoading ? (
           <div className="spinner"></div>
         ) : (
-          <SearchResults results={results} />
+          <>
+            <SearchResults results={results} />
+            {selectedPokemon && <PokemonDetailPage id={selectedPokemon} />}
+          </>
         )}
       </section>
       {results.length > 1 ? (
-        <div>
+        <div className="nav-buttons">
           <button disabled={currentPage === 0} onClick={prevPage}>
             Prev
           </button>

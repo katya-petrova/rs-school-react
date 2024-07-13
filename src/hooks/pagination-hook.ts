@@ -5,22 +5,27 @@ export function usePagination(defaultPage = 0) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const rawPage = new URLSearchParams(location.search).get('page');
-  const currentPage = rawPage ? parseInt(rawPage, 10) - 1 : defaultPage;
+  const currentPage = new URLSearchParams(location.search).get('page');
 
-  const [pageNumber, setPageNumber] = useState(currentPage);
+  const [pageNumber, setPageNumber] = useState(
+    currentPage ? parseInt(currentPage, 10) - 1 : defaultPage
+  );
+
+  const changePage = (newPageNumber: number) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('page', `${newPageNumber + 1}`);
+    navigate(`?${searchParams.toString()}`, { replace: true });
+  };
 
   useEffect(() => {
-    navigate(`/?page=${pageNumber + 1}`, { replace: true });
-  }, [pageNumber, navigate]);
-
-  useEffect(() => {
-    const rawPage = new URLSearchParams(location.search).get('page');
-    const newPage = rawPage ? parseInt(rawPage, 10) - 1 : 0;
-    if (newPage !== pageNumber) {
-      setPageNumber(newPage);
+    const onPage = new URLSearchParams(location.search).get('page');
+    if (onPage) {
+      const onPageNumber = parseInt(onPage, 10) - 1;
+      if (onPageNumber !== pageNumber) {
+        setPageNumber(onPageNumber);
+      }
     }
-  }, [location.search]);
+  }, [location.search, pageNumber]);
 
-  return { pageNumber, setPageNumber };
+  return { pageNumber, setPageNumber: changePage };
 }

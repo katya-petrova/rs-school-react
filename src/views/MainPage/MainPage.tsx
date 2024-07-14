@@ -8,6 +8,7 @@ import { usePagination } from '../../hooks/pagination-hook';
 import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/local-storage-hook';
 import PokemonDetailPage from '../PokemonDetailsPage/PokemonDetailsPage';
+import NavigationButtons from '../../components/NavigationButtons/NavigationButtons';
 
 const MainPage: React.FC = () => {
   const location = useLocation();
@@ -104,16 +105,14 @@ const MainPage: React.FC = () => {
           </>
         )}
       </section>
-      {results.length > 1 ? (
-        <div className="nav-buttons">
-          <button disabled={currentPage === 0} onClick={prevPage}>
-            Prev
-          </button>
-          <button disabled={currentPage === totalPages - 1} onClick={nextPage}>
-            Next
-          </button>
-        </div>
-      ) : null}
+      {results.length > 1 && (
+        <NavigationButtons
+          currentPage={currentPage}
+          totalPages={totalPages}
+          nextPage={nextPage}
+          prevPage={prevPage}
+        />
+      )}
     </div>
   );
 };

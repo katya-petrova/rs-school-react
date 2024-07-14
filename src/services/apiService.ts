@@ -23,6 +23,9 @@ export const fetchByName = async (name: string | number) => {
     return fetchPokemons(100, 0);
   }
   const response = await fetch(`${API_URL}/${name}`);
+  if (!response.ok) {
+    throw new Error(`Pokemon not found: ${name}`);
+  }
   const data = await response.json();
   return [extractPokemonData(data)];
 };

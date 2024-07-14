@@ -39,7 +39,7 @@ const PokemonDetailPage: React.FC<PokemonDetailProps> = ({ id }) => {
   return (
     <div className="details-card">
       {isLoading ? (
-        <div className="spinner"></div>
+        <div className="spinner" role="progressbar"></div>
       ) : pokemon ? (
         <>
           <button onClick={handleClose} className="close-btn">

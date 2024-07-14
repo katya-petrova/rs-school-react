@@ -17,8 +17,6 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     if (e.currentTarget === e.target) {
-      console.log('AAA');
-
       const urlParams = new URLSearchParams(location.search);
       urlParams.delete('pokemon');
       navigate('?' + urlParams.toString());

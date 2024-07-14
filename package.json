@@ -10,6 +10,7 @@
     "lint:fix": "eslint -fix .",
     "format:fix": "npx prettier . --write",
     "test": "react-scripts test --coverage",
+    "test:precommit": "react-scripts test --watchAll=false",
     "preview": "vite preview",
     "prepare": "husky"
   },

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import './PokemonDetailsPage.css';
+import React, { useContext, useEffect, useState } from 'react';
+import './PokemonDetailsPage.scss';
 import { fetchByName } from '../../services/apiService';
 import { Result } from '../../interfaces/results';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ThemeContext } from '../../context/ThemeContext';
 
 interface PokemonDetailProps {
   id: string;
@@ -12,6 +13,9 @@ const PokemonDetailPage: React.FC<PokemonDetailProps> = ({ id }) => {
   const [pokemon, setPokemon] = useState<Result | null>(null);
   const [lastFetchedId, setLastFetchedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const context = useContext(ThemeContext);
+  const className = `details-card ${context.theme}`;
 
   useEffect(() => {
     const fetchPokemon = async () => {
@@ -37,12 +41,15 @@ const PokemonDetailPage: React.FC<PokemonDetailProps> = ({ id }) => {
   };
 
   return (
-    <div className="details-card">
+    <div className={className}>
       {isLoading ? (
         <div className="spinner" role="progressbar"></div>
       ) : pokemon ? (
         <>
-          <button onClick={handleClose} className="close-btn">
+          <button
+            onClick={handleClose}
+            className={`close-btn ${context.theme}`}
+          >
             X
           </button>
 

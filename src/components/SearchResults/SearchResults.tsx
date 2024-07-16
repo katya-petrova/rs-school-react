@@ -1,13 +1,17 @@
-import React from 'react';
-import './SearchResults.css';
+import React, { useContext } from 'react';
+import './SearchResults.scss';
 import { Result } from '../../interfaces/results';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ThemeContext } from '../../context/ThemeContext';
 
 interface SearchResultsProps {
   results: Result[];
 }
 
 const SearchResults: React.FC<SearchResultsProps> = (props) => {
+  const context = useContext(ThemeContext);
+  const className = `pokemon-item ${context.theme}`;
+
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const currentPage = params.get('page');
@@ -32,7 +36,7 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
             key={result.id}
           >
             {' '}
-            <div className="pokemon-item">
+            <div className={className}>
               <div className="pokemon-name">
                 <h2>{result.name}</h2>
                 <img src={result.image} alt="" />

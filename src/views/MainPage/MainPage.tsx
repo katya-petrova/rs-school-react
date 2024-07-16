@@ -9,6 +9,7 @@ import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/local-storage-hook';
 import PokemonDetailPage from '../PokemonDetailsPage/PokemonDetailsPage';
 import NavigationButtons from '../../components/NavigationButtons/NavigationButtons';
+import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 
 const MainPage: React.FC = () => {
   const location = useLocation();
@@ -94,6 +95,7 @@ const MainPage: React.FC = () => {
           />
         </section>
         <button onClick={throwError}>Throw Error</button>
+        <ThemeToggle />
       </div>
       <section className="results">
         {isLoading ? (

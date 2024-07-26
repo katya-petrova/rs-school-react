@@ -2,32 +2,43 @@ import React, { useState, useEffect } from 'react';
 import './MainPage.css';
 import SearchInput from '../../components/SearchInput/SearchInput';
 import SearchResults from '../../components/SearchResults/SearchResults';
-import { fetchByName, fetchPokemons } from '../../services/apiService';
-import { Result } from '../../interfaces/results';
 import { usePagination } from '../../hooks/pagination-hook';
 import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '../../hooks/local-storage-hook';
 import PokemonDetailPage from '../PokemonDetailsPage/PokemonDetailsPage';
 import NavigationButtons from '../../components/NavigationButtons/NavigationButtons';
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
+import {
+  useGetAllPokemonsQuery,
+  useGetPokemonByNameQuery,
+} from '../../services/pokemonApi';
 
 const MainPage: React.FC = () => {
   const location = useLocation();
   const [term, setTerm] = useLocalStorage('term', '');
-  const [results, setResults] = useState<Result[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [shouldThrowError, setShouldThrowError] = useState<boolean>(false);
-  const [totalPages, setTotalPages] = useState(0);
   const [selectedPokemon, setSelectedPokemon] = useState<string | null>(null);
 
   const { pageNumber: currentPage, setPageNumber: setCurrentPage } =
     usePagination();
 
+  const PAGE_SIZE = 6;
+
+  const { data: allPokemonsData, isLoading: isLoadingAllPokemons } =
+    useGetAllPokemonsQuery({
+      limit: PAGE_SIZE,
+      offset: currentPage * PAGE_SIZE,
+    });
+
+  const { data: pokemonData, isLoading: isLoadingPokemon } =
+    useGetPokemonByNameQuery(term, {
+      skip: !term,
+    });
+
+  const isLoading = isLoadingAllPokemons || isLoadingPokemon;
   useEffect(() => {
-    if (!term) {
-      loadAllPokemons();
-    }
-  }, [currentPage]);
+    console.log('Loading status of all pokemons:', isLoadingAllPokemons);
+  }, [isLoadingAllPokemons]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -40,44 +51,14 @@ const MainPage: React.FC = () => {
     setSelectedPokemon(newPokemon);
   }, [location.search]);
 
-  const PAGE_SIZE = 6;
-
-  const loadAllPokemons = async () => {
-    setIsLoading(true);
-    const data = await fetchPokemons(PAGE_SIZE, currentPage * PAGE_SIZE);
-    setIsLoading(false);
-    setResults(data.results);
-    setTotalPages(Math.ceil(data.count / PAGE_SIZE));
-  };
-
-  const search = async (term: string) => {
-    setIsLoading(true);
-    const response = await fetchByName(term);
-    setIsLoading(false);
-    if (Array.isArray(response)) {
-      setResults(response as Result[]);
-    }
-  };
-
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTerm(event.target.value);
   };
 
-  const handleButtonClick = () => {
-    if (term) search(term);
-    else loadAllPokemons();
-  };
+  const handleButtonClick = () => {};
 
   const throwError = () => {
     setShouldThrowError(true);
-  };
-
-  const nextPage = () => {
-    setCurrentPage(currentPage + 1);
-  };
-
-  const prevPage = () => {
-    setCurrentPage(currentPage - 1);
   };
 
   if (shouldThrowError) {
@@ -102,17 +83,25 @@ const MainPage: React.FC = () => {
           <div className="spinner"></div>
         ) : (
           <>
-            <SearchResults results={results} />
+            <SearchResults
+              results={
+                term
+                  ? pokemonData
+                    ? [pokemonData]
+                    : []
+                  : allPokemonsData?.results || []
+              }
+            />
             {selectedPokemon && <PokemonDetailPage id={selectedPokemon} />}
           </>
         )}
       </section>
-      {results.length > 1 && (
+      {allPokemonsData && (
         <NavigationButtons
           currentPage={currentPage}
-          totalPages={totalPages}
-          nextPage={nextPage}
-          prevPage={prevPage}
+          totalPages={Math.ceil(allPokemonsData.count / PAGE_SIZE)}
+          nextPage={() => setCurrentPage(currentPage + 1)}
+          prevPage={() => setCurrentPage(currentPage - 1)}
         />
       )}
     </div>

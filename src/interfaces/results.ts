@@ -1,5 +1,12 @@
+import { PokemonsDto } from './pokemons-dto';
+
 export interface SearchResultsProps {
   results: Result[];
+}
+
+export interface SearchResults {
+  results: PokemonsDto[];
+  count: number;
 }
 
 export interface Result {
@@ -11,7 +18,7 @@ export interface Result {
   abilities: Abilities[];
   height: string;
   types: Types[];
-  sprites: Sprites;
+  sprites?: Sprites;
 }
 
 export interface Abilities {

@@ -1,35 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import './PokemonDetailsPage.scss';
-import { fetchByName } from '../../services/apiService';
-import { Result } from '../../interfaces/results';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
+import { useGetPokemonByNameQuery } from '../../services/pokemonApi';
 
 interface PokemonDetailProps {
   id: string;
 }
 
 const PokemonDetailPage: React.FC<PokemonDetailProps> = ({ id }) => {
-  const [pokemon, setPokemon] = useState<Result | null>(null);
-  const [lastFetchedId, setLastFetchedId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { data: pokemon, isLoading } = useGetPokemonByNameQuery(id, {
+    skip: id === null,
+  });
 
   const context = useContext(ThemeContext);
   const className = `details-card ${context.theme}`;
-
-  useEffect(() => {
-    const fetchPokemon = async () => {
-      setIsLoading(true);
-      const result = (await fetchByName(id)) as unknown as Result[];
-      setPokemon(result[0]);
-      setIsLoading(false);
-    };
-
-    if (id !== lastFetchedId) {
-      setLastFetchedId(id);
-      fetchPokemon();
-    }
-  }, [id, lastFetchedId]);
 
   const navigate = useNavigate();
   const location = useLocation();

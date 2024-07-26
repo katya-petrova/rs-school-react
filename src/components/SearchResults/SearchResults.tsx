@@ -23,9 +23,7 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
   const selectedPokemons = useSelector(
     (state: RootState) => state.selectedPokemons.selectedPokemons
   );
-  let dlPanelClassName = `download ${selectedPokemons.length > 0 ? '' : 'hide'}`;
-
-  console.log(selectedPokemons);
+  const dlPanelClassName = `download ${selectedPokemons.length > 0 ? '' : 'hide'}`;
 
   const handleBackgroundClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -67,12 +65,17 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
                 <p>
                   <b>Abilities:</b>
                   {result.abilities
-                    .map((ability) => ability.ability.name)
+                    .map(
+                      (ability: { ability: { name: string } }) =>
+                        ability.ability.name
+                    )
                     .join(', ')}
                 </p>
                 <p>
                   <b>Types:</b>
-                  {result.types.map((type) => type.type.name).join(', ')}
+                  {result.types
+                    .map((type: { type: { name: string } }) => type.type.name)
+                    .join(', ')}
                 </p>
                 <p>
                   <b>Height:</b> {result.height}

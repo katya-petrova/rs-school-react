@@ -1,17 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { setPage } from '../store/currentPageSlice';
+import { RootState } from '../store/store';
 
-export function usePagination(defaultPage = 0) {
+export function usePagination() {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const currentPage = new URLSearchParams(location.search).get('page');
-
-  const [pageNumber, setPageNumber] = useState(
-    currentPage ? parseInt(currentPage, 10) - 1 : defaultPage
-  );
+  const pageNumber = useSelector((state: RootState) => state.page);
 
   const changePage = (newPageNumber: number) => {
+    dispatch(setPage(newPageNumber));
+
     const searchParams = new URLSearchParams(location.search);
     searchParams.set('page', `${newPageNumber + 1}`);
     navigate(`?${searchParams.toString()}`, { replace: true });
@@ -19,11 +21,10 @@ export function usePagination(defaultPage = 0) {
 
   useEffect(() => {
     const onPage = new URLSearchParams(location.search).get('page');
-    if (onPage) {
-      const onPageNumber = parseInt(onPage, 10) - 1;
-      if (onPageNumber !== pageNumber) {
-        setPageNumber(onPageNumber);
-      }
+    const onPageNumber = onPage ? parseInt(onPage, 10) - 1 : 0;
+
+    if (onPageNumber !== pageNumber) {
+      changePage(onPageNumber);
     }
   }, [location.search, pageNumber]);
 

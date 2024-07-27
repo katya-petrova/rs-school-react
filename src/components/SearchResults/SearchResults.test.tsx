@@ -1,87 +1,100 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { screen, render, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import SearchResults from './SearchResults';
-import { SearchResultsProps } from '../../interfaces/results';
-import { useNavigate } from 'react-router-dom';
+import store from '../../store/store';
 import '@testing-library/jest-dom';
+import { ThemeContext } from '../../context/ThemeContext';
+import { add } from '../../store/selectedPokemonsSlice';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    search: '',
-  }),
-  useNavigate: jest.fn(),
-}));
+const results = [
+  {
+    id: '1',
+    name: 'Bulbasaur',
+    image: 'bulbasaur-image-url',
+    back_view: 'img',
+    abilities: [{ ability: { name: 'overgrow' } }],
+    types: [{ type: { name: 'grass' } }, { type: { name: 'poison' } }],
+    height: '7',
+    weight: '69',
+  },
+];
 
-const mockData: SearchResultsProps = {
-  results: [
-    {
-      id: 'test-id',
-      name: 'Test Pokemon',
-      weight: '1',
-      image: 'http://example.com/test-image.png',
-      back_view: 'http://example.com/test-back-view.png',
-      abilities: [{ ability: { name: 'run' } }, { ability: { name: 'jump' } }],
-      types: [{ type: { name: 'fire' } }, { type: { name: 'flying' } }],
-      sprites: {
-        front_shiny: 'test',
-        back_shiny: 'test1',
-      },
-      height: '1',
-    },
-  ],
-};
+describe('SearchResults', () => {
+  test('displays the results', () => {
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
+            <SearchResults results={results} />
+          </ThemeContext.Provider>
+        </MemoryRouter>
+      </Provider>
+    );
 
-test('renders SearchResults with given properties', () => {
-  render(
-    <Router>
-      <SearchResults {...mockData} />
-    </Router>
-  );
+    expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
+    expect(screen.getByAltText('')).toHaveAttribute(
+      'src',
+      'bulbasaur-image-url'
+    );
+  });
 
-  expect(screen.getByText(/Test Pokemon/i)).toBeInTheDocument();
-});
+  test('handles checkbox change', () => {
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
+            <SearchResults results={results} />
+          </ThemeContext.Provider>
+        </MemoryRouter>
+      </Provider>
+    );
 
-test('renders Pokemon image correctly', () => {
-  render(
-    <Router>
-      <SearchResults {...mockData} />
-    </Router>
-  );
+    const checkbox = screen.getByRole('checkbox');
+    fireEvent.click(checkbox);
 
-  const pokemonImage = screen.getByAltText('');
-  expect(pokemonImage).toHaveAttribute(
-    'src',
-    'http://example.com/test-image.png'
-  );
-});
+    expect(store.getState().selectedPokemons.selectedPokemons).toContainEqual(
+      results[0]
+    );
 
-test('navigates correctly on background click', () => {
-  const navigate = jest.fn();
-  (useNavigate as jest.Mock).mockReturnValue(navigate);
+    fireEvent.click(checkbox);
 
-  const { container } = render(
-    <Router>
-      <SearchResults {...mockData} />
-    </Router>
-  );
+    expect(
+      store.getState().selectedPokemons.selectedPokemons
+    ).not.toContainEqual(results[0]);
+  });
 
-  fireEvent.click(container.firstChild as Element);
+  test('removes pokemon from URL on background click', () => {
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/?page=1&pokemon=1']}>
+          <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
+            <SearchResults results={results} />
+          </ThemeContext.Provider>
+        </MemoryRouter>
+      </Provider>
+    );
 
-  expect(navigate).toHaveBeenCalledWith('?');
-});
+    fireEvent.click(
+      screen.getByText('Bulbasaur').closest('div') as HTMLElement
+    );
 
-test('displays Pokemon abilities and types correctly', () => {
-  render(
-    <Router>
-      <SearchResults {...mockData} />
-    </Router>
-  );
+    expect(window.location.search).toBe('');
+  });
 
-  const paragraphs = screen.getAllByRole('paragraph');
+  test('shows download panel when pokemons are selected', () => {
+    store.dispatch(add(results[0]));
 
-  expect(paragraphs).toHaveLength(4);
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
+            <SearchResults results={results} />
+          </ThemeContext.Provider>
+        </MemoryRouter>
+      </Provider>
+    );
 
-  expect(paragraphs[0]).toHaveTextContent(/abilities:\s*run,\s*jump/i);
-  expect(paragraphs[1]).toHaveTextContent(/types:\s*fire,\s*flying/i);
+    expect(screen.getByText(/Download/i)).toBeInTheDocument();
+  });
 });

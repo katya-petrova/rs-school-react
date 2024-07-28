@@ -1,0 +1,2 @@
+npm run test:precommit
+npx lint-staged

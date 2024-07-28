@@ -24,21 +24,17 @@ const MainPage: React.FC = () => {
 
   const PAGE_SIZE = 6;
 
-  const { data: allPokemonsData, isLoading: isLoadingAllPokemons } =
+  const { data: allPokemonsData, isFetching: isFetchingAllPokemons } =
     useGetAllPokemonsQuery({
       limit: PAGE_SIZE,
       offset: currentPage * PAGE_SIZE,
     });
 
-  const { data: pokemonData, isLoading: isLoadingPokemon } =
+  const { data: pokemonData, isFetching: isFetchingPokemon } =
     useGetPokemonByNameQuery(term, {
       skip: !term,
     });
-
-  const isLoading = isLoadingAllPokemons || isLoadingPokemon;
-  useEffect(() => {
-    console.log('Loading status of all pokemons:', isLoadingAllPokemons);
-  }, [isLoadingAllPokemons]);
+  const isLoading = isFetchingAllPokemons || isFetchingPokemon;
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -80,7 +76,7 @@ const MainPage: React.FC = () => {
       </div>
       <section className="results">
         {isLoading ? (
-          <div className="spinner"></div>
+          <div className="spinner" data-testid="spinner"></div>
         ) : (
           <>
             <SearchResults

@@ -32,6 +32,14 @@
   display: flex;
   align-items: baseline;
   gap: 30px;
+
+  &.dark {
+    color: white;
+  }
+
+  &.light {
+    color: black;
+  }
 }
 
 .pokemon-item:hover {

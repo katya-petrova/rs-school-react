@@ -9,7 +9,7 @@ interface PokemonDetailProps {
 }
 
 const PokemonDetailPage: React.FC<PokemonDetailProps> = ({ id }) => {
-  const { data: pokemon, isLoading } = useGetPokemonByNameQuery(id, {
+  const { data: pokemon, isFetching } = useGetPokemonByNameQuery(id, {
     skip: id === null,
   });
 
@@ -27,7 +27,7 @@ const PokemonDetailPage: React.FC<PokemonDetailProps> = ({ id }) => {
 
   return (
     <div className={className}>
-      {isLoading ? (
+      {isFetching ? (
         <div className="spinner" role="progressbar"></div>
       ) : pokemon ? (
         <>

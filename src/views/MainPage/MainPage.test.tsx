@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 import '@testing-library/jest-dom';
@@ -33,5 +33,27 @@ test('searches for a pokemon and displays the result', async () => {
 
   await waitFor(() => {
     expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument();
+  });
+});
+
+test('throws an error when "Throw Error" button is clicked', () => {
+  const { getByText } = render(
+    <Provider store={store}>
+      <Router>
+        <MainPage />
+      </Router>
+    </Provider>
+  );
+
+  window.addEventListener('error', (evt) => {
+    evt.preventDefault();
+  });
+
+  expect(() => {
+    fireEvent.click(getByText('Throw Error'));
+  }).toThrow();
+
+  window.removeEventListener('error', (evt) => {
+    evt.preventDefault();
   });
 });

@@ -55,7 +55,7 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
             onChange={() => handleCheckboxChange(result)}
           />
           <Link to={`/?page=${currentPage || 1}&pokemon=${result.id}`}>
-            <div className="pokemon">
+            <div className={`pokemon ${context.theme}`}>
               <div className="pokemon-name">
                 <h2>{result.name}</h2>
                 <img src={result.image} alt="" />

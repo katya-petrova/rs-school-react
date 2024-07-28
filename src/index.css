@@ -60,6 +60,18 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+body.light-theme button {
+  background-color: #ce56ea;
+}
+
+body.dark-theme button {
+  background-color: #1a1a1a;
+}
+
+body.light-theme .search-input {
+  background-color: #f8a4e4;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

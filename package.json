@@ -4,18 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 5",
     "lint:fix": "eslint -fix .",
     "format:fix": "npx prettier . --write",
     "test": "react-scripts test --coverage --watchAll=false",
     "test:precommit": "react-scripts test --watchAll=false",
-    "preview": "vite preview",
     "prepare": "husky"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.6",
+    "next": "^14.2.5",
     "node-sass": "^9.0.0",
     "papaparse": "^5.4.1",
     "react": "^18.3.1",

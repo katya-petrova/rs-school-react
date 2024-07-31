@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Result } from '../../interfaces/results';
 import { remove, add } from '../../store/selectedPokemonsSlice';
 import { ThemeContext } from '../../context/ThemeContext';
@@ -15,10 +16,9 @@ interface SearchResultsProps {
 const SearchResults: React.FC<SearchResultsProps> = (props) => {
   const context = useContext(ThemeContext);
   const className = `pokemon-item ${context.theme}`;
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const currentPage = params.get('page');
-  const navigate = useNavigate();
+  const router = useRouter();
+  const { query } = router;
+  const currentPage = query.page as string;
   const dispatch = useDispatch();
   const selectedPokemons = useSelector(
     (state: RootState) => state.selectedPokemons.selectedPokemons
@@ -29,9 +29,9 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     if (e.currentTarget === e.target) {
-      const urlParams = new URLSearchParams(location.search);
+      const urlParams = new URLSearchParams(query as Record<string, string>);
       urlParams.delete('pokemon');
-      navigate('?' + urlParams.toString());
+      router.push('?' + urlParams.toString(), undefined, { shallow: true });
     }
   };
 
@@ -54,11 +54,14 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
             )}
             onChange={() => handleCheckboxChange(result)}
           />
-          <Link to={`/?page=${currentPage || 1}&pokemon=${result.id}`}>
+          <Link
+            href={`/?page=${currentPage || 1}&pokemon=${result.id}`}
+            passHref
+          >
             <div className={`pokemon ${context.theme}`}>
               <div className="pokemon-name">
                 <h2>{result.name}</h2>
-                <img src={result.image} alt="" />
+                <img src={result.image} alt={result.name} />
               </div>
 
               <div className="pokemon-description">

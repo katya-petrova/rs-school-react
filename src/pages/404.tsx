@@ -1,18 +1,18 @@
 import React from 'react';
-import './NotFoundPage.css';
-import notFoundImage from '../../assets/pikachu-i-choose-you-sad-icon-png-icon-removebg-preview.png';
-import { useNavigate } from 'react-router-dom';
+import './404.css';
+import notFoundImage from '../assets/pikachu-i-choose-you-sad-icon-png-icon-removebg-preview.png';
+import { useRouter } from 'next/router';
 
 const NotFoundPage: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const navigateSearch = () => {
-    navigate('/');
+    router.push('/');
   };
 
   return (
     <div className="container">
-      <img src={notFoundImage} alt="Not Found" />
+      <img src={notFoundImage.src} alt="Not Found" />
       <h1>Page is not found</h1>
       <button onClick={navigateSearch}>Go back to search</button>
     </div>

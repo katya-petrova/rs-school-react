@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import '@testing-library/jest-dom';
 import { add, removeAll } from '../../store/selectedPokemonsSlice';
 import DownloadPanel from './DownloadPanel';
@@ -10,12 +10,22 @@ import Papa from 'papaparse';
 jest.mock('papaparse', () => ({
   unparse: jest.fn(),
 }));
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+const mockUseRouter = useRouter as jest.Mock;
 
 const originalCreateObjectURL = URL.createObjectURL;
 
 describe('DownloadPanel', () => {
   beforeEach(() => {
     store.dispatch(removeAll());
+    mockUseRouter.mockReturnValue({
+      query: { pokemon: 'bulbasaur' },
+      push: jest.fn(),
+      asPath: '/?page=1&pokemon=1',
+    });
   });
 
   beforeAll(() => {
@@ -44,9 +54,7 @@ describe('DownloadPanel', () => {
 
     render(
       <Provider store={store}>
-        <MemoryRouter>
-          <DownloadPanel />
-        </MemoryRouter>
+        <DownloadPanel />
       </Provider>
     );
 
@@ -71,9 +79,7 @@ describe('DownloadPanel', () => {
 
     render(
       <Provider store={store}>
-        <MemoryRouter>
-          <DownloadPanel />
-        </MemoryRouter>
+        <DownloadPanel />
       </Provider>
     );
 
@@ -101,9 +107,7 @@ describe('DownloadPanel', () => {
 
     render(
       <Provider store={store}>
-        <MemoryRouter>
-          <DownloadPanel />
-        </MemoryRouter>
+        <DownloadPanel />
       </Provider>
     );
 

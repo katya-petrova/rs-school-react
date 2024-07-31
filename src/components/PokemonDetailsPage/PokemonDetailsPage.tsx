@@ -1,28 +1,27 @@
 import React, { useContext } from 'react';
-import './PokemonDetailsPage.scss';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { ThemeContext } from '../../context/ThemeContext';
 import { useGetPokemonByNameQuery } from '../../services/pokemonApi';
+import './PokemonDetailsPage.scss';
 
-interface PokemonDetailProps {
-  id: string;
-}
+const PokemonDetailPage: React.FC = () => {
+  const router = useRouter();
+  const { query } = router;
+  const id = query.pokemon as string;
 
-const PokemonDetailPage: React.FC<PokemonDetailProps> = ({ id }) => {
   const { data: pokemon, isFetching } = useGetPokemonByNameQuery(id, {
-    skip: id === null,
+    skip: !id,
   });
 
   const context = useContext(ThemeContext);
   const className = `details-card ${context.theme}`;
 
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const handleClose = () => {
-    const urlParams = new URLSearchParams(location.search);
+    const urlParams = new URLSearchParams(
+      router.query as Record<string, string>
+    );
     urlParams.delete('pokemon');
-    navigate('?' + urlParams.toString());
+    router.push(`?${urlParams.toString()}`, undefined, { shallow: true });
   };
 
   return (

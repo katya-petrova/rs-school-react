@@ -1,13 +1,13 @@
 import React, { useContext } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ThemeContext } from '../../context/ThemeContext';
 import { useGetPokemonByNameQuery } from '../../services/pokemonApi';
 import './PokemonDetailsPage.scss';
 
 const PokemonDetailPage: React.FC = () => {
   const router = useRouter();
-  const { query } = router;
-  const id = query.pokemon as string;
+  const searchParams = useSearchParams();
+  const id = searchParams?.get('pokemon') as string;
 
   const { data: pokemon, isFetching } = useGetPokemonByNameQuery(id, {
     skip: !id,
@@ -17,11 +17,9 @@ const PokemonDetailPage: React.FC = () => {
   const className = `details-card ${context.theme}`;
 
   const handleClose = () => {
-    const urlParams = new URLSearchParams(
-      router.query as Record<string, string>
-    );
-    urlParams.delete('pokemon');
-    router.push(`?${urlParams.toString()}`, undefined, { shallow: true });
+    const params = new URLSearchParams(searchParams as unknown as string);
+    params.delete('pokemon');
+    router.push(`?${params.toString()}`);
   };
 
   return (

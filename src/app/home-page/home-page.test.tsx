@@ -1,23 +1,33 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import MainPage from '../pages/index';
+import MainPage from './home-page';
 import { Provider } from 'react-redux';
-import { useRouter } from 'next/router';
-import store from '../store/store';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import store from '../../store/store';
 import '@testing-library/jest-dom';
 import React from 'react';
 
-jest.mock('next/router', () => ({
+jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+  usePathname: jest.fn(),
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
+const mockUseSearchParams = useSearchParams as jest.Mock;
+const mockUsePathname = usePathname as jest.Mock;
 
 describe('MainPage', () => {
   beforeEach(() => {
     mockUseRouter.mockReturnValue({
-      query: { page: '1', pokemon: null },
       push: jest.fn(),
     });
+    mockUseSearchParams.mockReturnValue({
+      get: jest.fn().mockImplementation((key) => {
+        if (key === 'page') return '1';
+        if (key === 'pokemon') return null;
+      }),
+    });
+    mockUsePathname.mockReturnValue('/some-path');
   });
 
   test('renders MainPage with mock data', async () => {

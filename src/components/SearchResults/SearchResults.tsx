@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Result } from '../../interfaces/results';
 import { remove, add } from '../../store/selectedPokemonsSlice';
 import { ThemeContext } from '../../context/ThemeContext';
@@ -17,8 +17,9 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
   const context = useContext(ThemeContext);
   const className = `pokemon-item ${context.theme}`;
   const router = useRouter();
-  const { query } = router;
-  const currentPage = query.page as string;
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const currentPage = searchParams?.get('page') || '1';
   const dispatch = useDispatch();
   const selectedPokemons = useSelector(
     (state: RootState) => state.selectedPokemons.selectedPokemons
@@ -29,9 +30,9 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     if (e.currentTarget === e.target) {
-      const urlParams = new URLSearchParams(query as Record<string, string>);
-      urlParams.delete('pokemon');
-      router.push('?' + urlParams.toString(), undefined, { shallow: true });
+      const newSearchParams = new URLSearchParams(searchParams?.toString());
+      newSearchParams.delete('pokemon');
+      router.push(`${pathname}?${newSearchParams.toString()}`);
     }
   };
 
@@ -54,10 +55,7 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
             )}
             onChange={() => handleCheckboxChange(result)}
           />
-          <Link
-            href={`/?page=${currentPage || 1}&pokemon=${result.id}`}
-            passHref
-          >
+          <Link href={`/?page=${currentPage}&pokemon=${result.id}`} passHref>
             <div className={`pokemon ${context.theme}`}>
               <div className="pokemon-name">
                 <h2>{result.name}</h2>

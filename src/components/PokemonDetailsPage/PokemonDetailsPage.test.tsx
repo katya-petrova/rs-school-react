@@ -1,20 +1,20 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import PokemonDetailPage from './PokemonDetailsPage';
 import { ThemeContext } from '../../context/ThemeContext';
 import { useGetPokemonByNameQuery } from '../../services/pokemonApi';
 
-// Mocking the external hooks and context
-jest.mock('next/router', () => ({
+jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+  usePathname: jest.fn(),
+  useSearchParams: jest.fn(),
 }));
 jest.mock('../../services/pokemonApi', () => ({
   useGetPokemonByNameQuery: jest.fn(),
 }));
 
-// Utility function to render component within theme provider
 const renderWithTheme = (
   theme: string,
   component:
@@ -23,8 +23,7 @@ const renderWithTheme = (
     | React.JSX.Element
 ) => {
   return render(
-    <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
-      {' '}
+    <ThemeContext.Provider value={{ theme, setTheme: () => {} }}>
       {component}
     </ThemeContext.Provider>
   );
@@ -43,9 +42,12 @@ describe('PokemonDetailPage', () => {
 
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({
-      query: { pokemon: 'pikachu' },
       push: mockPush,
     });
+    (usePathname as jest.Mock).mockReturnValue('/some-path');
+    (useSearchParams as jest.Mock).mockReturnValue(
+      new URLSearchParams('?pokemon=pikachu')
+    );
     (useGetPokemonByNameQuery as jest.Mock).mockReturnValue({
       data: mockPokemon,
       isFetching: false,
@@ -70,6 +72,6 @@ describe('PokemonDetailPage', () => {
   test('handles close button correctly', () => {
     const { getByText } = renderWithTheme('dark', <PokemonDetailPage />);
     fireEvent.click(getByText('X'));
-    expect(mockPush).toHaveBeenCalledWith('?', undefined, { shallow: true });
+    expect(mockPush).toHaveBeenCalledWith('?');
   });
 });

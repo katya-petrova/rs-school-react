@@ -16,8 +16,10 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.6",
+    "js-cookie": "^3.0.5",
     "next": "^14.2.5",
     "node-sass": "^9.0.0",
+    "nookies": "^2.5.2",
     "papaparse": "^5.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -32,6 +34,7 @@
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.12",
+    "@types/js-cookie": "^3.0.6",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

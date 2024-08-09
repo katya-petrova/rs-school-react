@@ -4,27 +4,14 @@ import '@testing-library/jest-dom';
 import { useRouter } from 'next/router';
 import PokemonDetailPage from './PokemonDetailsPage';
 import { ThemeContext } from '../../context/ThemeContext';
-import { useGetPokemonByNameQuery } from '../../services/pokemonApi';
 
-// Mocking the external hooks and context
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
-jest.mock('../../services/pokemonApi', () => ({
-  useGetPokemonByNameQuery: jest.fn(),
-}));
 
-// Utility function to render component within theme provider
-const renderWithTheme = (
-  theme: string,
-  component:
-    | Iterable<React.ReactNode>
-    | Promise<React.AwaitedReactNode>
-    | React.JSX.Element
-) => {
+const renderWithTheme = (theme: string, component: React.ReactNode) => {
   return render(
-    <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
-      {' '}
+    <ThemeContext.Provider value={{ theme: theme, setTheme: () => {} }}>
       {component}
     </ThemeContext.Provider>
   );
@@ -34,9 +21,11 @@ describe('PokemonDetailPage', () => {
   const mockPush = jest.fn();
   const mockPokemon = {
     name: 'Pikachu',
+    id: 'test',
     image: 'pikachu_front.png',
     back_view: 'pikachu_back.png',
     types: [{ type: { name: 'electric' } }],
+    abilities: [],
     height: '4',
     weight: '12',
   };
@@ -46,30 +35,36 @@ describe('PokemonDetailPage', () => {
       query: { pokemon: 'pikachu' },
       push: mockPush,
     });
-    (useGetPokemonByNameQuery as jest.Mock).mockReturnValue({
-      data: mockPokemon,
-      isFetching: false,
-    });
   });
 
-  test('renders loading spinner when data is fetching', () => {
-    (useGetPokemonByNameQuery as jest.Mock).mockReturnValue({
-      data: null,
-      isFetching: true,
-    });
-    const { getByRole } = renderWithTheme('dark', <PokemonDetailPage />);
-    expect(getByRole('progressbar')).toBeInTheDocument();
-  });
-
-  test('renders pokemon details when data is available', () => {
-    const { getByText } = renderWithTheme('dark', <PokemonDetailPage />);
+  test('renders pokemon details', () => {
+    const { getByText, getAllByAltText } = renderWithTheme(
+      'dark',
+      <PokemonDetailPage pokemon={mockPokemon} />
+    );
     expect(getByText(/Pikachu:/i)).toBeInTheDocument();
     expect(getByText('electric')).toBeInTheDocument();
+
+    const pokemonImages = getAllByAltText('Pikachu');
+    expect(pokemonImages.length).toBe(2);
+    expect(pokemonImages[0]).toHaveAttribute('src', 'pikachu_front.png');
+    expect(pokemonImages[1]).toHaveAttribute('src', 'pikachu_back.png');
   });
 
   test('handles close button correctly', () => {
-    const { getByText } = renderWithTheme('dark', <PokemonDetailPage />);
+    const { getByText } = renderWithTheme(
+      'dark',
+      <PokemonDetailPage pokemon={mockPokemon} />
+    );
     fireEvent.click(getByText('X'));
-    expect(mockPush).toHaveBeenCalledWith('?', undefined, { shallow: true });
+    expect(mockPush).toHaveBeenCalledWith(`?`, undefined, { shallow: true });
+  });
+
+  test('renders not found text when no pokemon provided', () => {
+    const { getByText } = renderWithTheme(
+      'dark',
+      <PokemonDetailPage pokemon={null} />
+    );
+    expect(getByText('Pokemon not found')).toBeInTheDocument();
   });
 });

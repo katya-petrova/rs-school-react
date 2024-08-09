@@ -4,7 +4,7 @@ export const useLocalStorage = (
   key: string,
   initialValue: string
 ): [string, React.Dispatch<React.SetStateAction<string>>] => {
-  const [storedValue, setStoredValue] = useState(() => {
+  const [storedValue, setStoredValue] = useState<string>(() => {
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
@@ -15,7 +15,11 @@ export const useLocalStorage = (
   });
 
   useEffect(() => {
-    window.localStorage.setItem(key, JSON.stringify(storedValue));
+    try {
+      window.localStorage.setItem(key, JSON.stringify(storedValue));
+    } catch (error) {
+      console.log('Local storage error:', error);
+    }
   }, [key, storedValue]);
 
   return [storedValue, setStoredValue];

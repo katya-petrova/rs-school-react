@@ -1,6 +1,5 @@
-import { screen, render, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import SearchResults from './SearchResults';
 import store from '../../store/store';
 import '@testing-library/jest-dom';
@@ -9,14 +8,12 @@ import { add } from '../../store/selectedPokemonsSlice';
 import React from 'react';
 
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-  useSearchParams: jest.fn(),
-  usePathname: jest.fn(),
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+  })),
+  useSearchParams: jest.fn(() => new URLSearchParams('?pokemon=1')),
+  usePathname: jest.fn(() => '/some-path'),
 }));
-
-const mockUseRouter = useRouter as jest.Mock;
-const mockUseSearchParams = useSearchParams as jest.Mock;
-const mockUsePathname = usePathname as jest.Mock;
 
 const results = [
   {
@@ -32,16 +29,8 @@ const results = [
 ];
 
 describe('SearchResults', () => {
-  beforeEach(() => {
-    mockUseRouter.mockReturnValue({
-      push: jest.fn(),
-    });
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('?pokemon=1'));
-    mockUsePathname.mockReturnValue('/some-path');
-  });
-
   test('displays the results', () => {
-    render(
+    const { getByText } = render(
       <Provider store={store}>
         <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
           <SearchResults results={results} />
@@ -49,11 +38,11 @@ describe('SearchResults', () => {
       </Provider>
     );
 
-    expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
+    expect(getByText('Bulbasaur')).toBeInTheDocument();
   });
 
   test('handles checkbox change', () => {
-    render(
+    const { getByRole } = render(
       <Provider store={store}>
         <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
           <SearchResults results={results} />
@@ -61,7 +50,7 @@ describe('SearchResults', () => {
       </Provider>
     );
 
-    const checkbox = screen.getByRole('checkbox');
+    const checkbox = getByRole('checkbox');
     fireEvent.click(checkbox);
 
     expect(store.getState().selectedPokemons.selectedPokemons).toContainEqual(
@@ -76,7 +65,7 @@ describe('SearchResults', () => {
   });
 
   test('removes pokemon from URL on background click', () => {
-    render(
+    const { getByText } = render(
       <Provider store={store}>
         <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
           <SearchResults results={results} />
@@ -84,9 +73,7 @@ describe('SearchResults', () => {
       </Provider>
     );
 
-    fireEvent.click(
-      screen.getByText('Bulbasaur').closest('div') as HTMLElement
-    );
+    fireEvent.click(getByText('Bulbasaur').closest('div') as HTMLElement);
 
     expect(window.location.search).toBe('');
   });
@@ -94,7 +81,7 @@ describe('SearchResults', () => {
   test('shows download panel when pokemons are selected', () => {
     store.dispatch(add(results[0]));
 
-    render(
+    const { getByText } = render(
       <Provider store={store}>
         <ThemeContext.Provider value={{ theme: 'light', setTheme: () => {} }}>
           <SearchResults results={results} />
@@ -102,6 +89,6 @@ describe('SearchResults', () => {
       </Provider>
     );
 
-    expect(screen.getByText(/Download/i)).toBeInTheDocument();
+    expect(getByText(/Download/i)).toBeInTheDocument();
   });
 });

@@ -4,10 +4,9 @@ import SearchInput from './SearchInput';
 
 describe('SearchInput', () => {
   test('renders with placeholder and initial value', () => {
-    const onChange = jest.fn();
     const onSearch = jest.fn();
     const { getByPlaceholderText, getByText } = render(
-      <SearchInput term="" onChange={onChange} onSearch={onSearch} />
+      <SearchInput term="" onSearch={onSearch} />
     );
 
     const inputElement = getByPlaceholderText(
@@ -21,11 +20,8 @@ describe('SearchInput', () => {
   });
 
   test('calls onSearch handler when Search button is clicked', () => {
-    const onChange = jest.fn();
     const onSearch = jest.fn();
-    const { getByText } = render(
-      <SearchInput term="" onChange={onChange} onSearch={onSearch} />
-    );
+    const { getByText } = render(<SearchInput term="" onSearch={onSearch} />);
 
     const searchButton = getByText('Search');
     fireEvent.click(searchButton);
@@ -34,10 +30,9 @@ describe('SearchInput', () => {
   });
 
   test('calls onSearch handler when Enter key is pressed', () => {
-    const onChange = jest.fn();
     const onSearch = jest.fn();
     const { getByPlaceholderText } = render(
-      <SearchInput term="" onChange={onChange} onSearch={onSearch} />
+      <SearchInput term="" onSearch={onSearch} />
     );
 
     const inputElement = getByPlaceholderText(

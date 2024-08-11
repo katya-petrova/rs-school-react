@@ -44,6 +44,14 @@ const SearchResults: React.FC<SearchResultsProps> = (props) => {
     }
   };
 
+  if (!props.results || props.results.length === 0) {
+    return (
+      <div className="search-results">
+        <p>Pokemons not found</p>
+      </div>
+    );
+  }
+
   return (
     <div className="search-results" onClick={handleBackgroundClick}>
       {props.results.map((result) => (

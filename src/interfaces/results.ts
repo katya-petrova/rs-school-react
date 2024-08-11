@@ -4,7 +4,7 @@ export interface SearchResultsProps {
   results: Result[];
 }
 
-export interface SearchResults {
+export interface ISearchResults {
   results: PokemonsDto[];
   count: number;
 }

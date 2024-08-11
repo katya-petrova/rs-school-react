@@ -1,10 +1,10 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import MainPage from './home-page';
-import { Provider } from 'react-redux';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import store from '../../store/store';
-import '@testing-library/jest-dom';
 import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import ClientComponent from './home-page';
+import { Provider } from 'react-redux';
+import store from '../../store/store';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -12,65 +12,145 @@ jest.mock('next/navigation', () => ({
   usePathname: jest.fn(),
 }));
 
-const mockUseRouter = useRouter as jest.Mock;
-const mockUseSearchParams = useSearchParams as jest.Mock;
-const mockUsePathname = usePathname as jest.Mock;
+jest.mock('js-cookie', () => ({
+  set: jest.fn(),
+}));
 
-describe('MainPage', () => {
-  beforeEach(() => {
-    mockUseRouter.mockReturnValue({
-      push: jest.fn(),
-    });
-    mockUseSearchParams.mockReturnValue({
-      get: jest.fn().mockImplementation((key) => {
-        if (key === 'page') return '1';
-        if (key === 'pokemon') return null;
-      }),
-    });
-    mockUsePathname.mockReturnValue('/some-path');
-  });
+const mockPush = jest.fn();
+const mockRefresh = jest.fn();
+const mockPathname = '/some-path';
 
-  test('renders MainPage with mock data', async () => {
+beforeEach(() => {
+  (useRouter as jest.Mock).mockImplementation(() => ({
+    push: mockPush,
+    refresh: mockRefresh,
+  }));
+  (useSearchParams as jest.Mock).mockImplementation(
+    () => new URLSearchParams()
+  );
+  (usePathname as jest.Mock).mockImplementation(() => mockPathname);
+});
+
+const dummyProps = {
+  allPokemonsData: {
+    results: [
+      {
+        id: '1',
+        name: 'Pikachu',
+        url: 'https://pokeapi.co/api/v2/pokemon/25/',
+        types: [{ type: { name: 'electric' } }],
+        abilities: [],
+      },
+    ],
+    count: 1,
+  },
+  pokemonData: [
+    {
+      name: 'Pikachu',
+      id: 'test',
+      image: 'pikachu_front.png',
+      back_view: 'pikachu_back.png',
+      types: [{ type: { name: 'electric' } }],
+      abilities: [],
+      height: '4',
+      weight: '12',
+    },
+  ],
+  pokemonDetail: [
+    {
+      name: 'Pikachu',
+      id: 'test2',
+      image: 'pikachu_front.png',
+      back_view: 'pikachu_back.png',
+      types: [{ type: { name: 'electric' } }],
+      abilities: [],
+      height: '4',
+      weight: '12',
+    },
+  ],
+  currentPage: 1,
+};
+
+describe('ClientComponent', () => {
+  test('handlePageChange calls router.push with the correct parameters', async () => {
     render(
       <Provider store={store}>
-        <MainPage />
+        <ClientComponent {...dummyProps} />
       </Provider>
     );
 
+    fireEvent.click(screen.getByText('Next'));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/?page=2&pokemon=');
+    });
+
+    fireEvent.click(screen.getByText('Prev'));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/?page=1&pokemon=');
+    });
+  });
+
+  test('handlePageChange sets and clears loading state', async () => {
+    render(
+      <Provider store={store}>
+        <ClientComponent {...dummyProps} />
+      </Provider>
+    );
+
+    fireEvent.click(screen.getByText('Next'));
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
-    expect(await screen.findByText(/bulbasaur/i)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
+    });
   });
 
-  test('updates term on input change', () => {
+  test('nextPage increments currentPage and calls handlePageChange', async () => {
     render(
       <Provider store={store}>
-        <MainPage />
+        <ClientComponent {...dummyProps} />
       </Provider>
     );
 
-    const input = screen.getByPlaceholderText(
-      'Type pokemon name e.g. raticate'
-    );
-
-    fireEvent.change(input, { target: { value: 'Pikachu' } });
-
-    expect(screen.getByDisplayValue('Pikachu')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Next'));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/?page=2&pokemon=');
+    });
   });
 
-  test('should throw an error when "Throw Error" button is clicked', () => {
-    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  test('prevPage decrements currentPage and calls handlePageChange', async () => {
+    dummyProps.currentPage = 2;
 
-    act(() => {
-      render(
-        <Provider store={store}>
-          <MainPage />
-        </Provider>
-      );
+    render(
+      <Provider store={store}>
+        <ClientComponent {...dummyProps} />
+      </Provider>
+    );
+
+    fireEvent.click(screen.getByText('Prev'));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/?page=1&pokemon=');
     });
+  });
 
-    expect(() => {
-      fireEvent.click(screen.getByText(/Throw Error/i));
-    }).toThrow('This is a test error.');
-    spy.mockRestore();
+  test('handleSearch calls router.refresh', async () => {
+    render(
+      <Provider store={store}>
+        <ClientComponent {...dummyProps} />
+      </Provider>
+    );
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Type pokemon name e.g. raticate'),
+      {
+        target: { value: 'Charmander' },
+      }
+    );
+
+    fireEvent.click(screen.getByText('Search'));
+
+    await waitFor(() => {
+      expect(mockRefresh).toHaveBeenCalledTimes(1);
+    });
   });
 });

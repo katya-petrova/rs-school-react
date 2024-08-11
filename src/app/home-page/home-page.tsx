@@ -1,65 +1,74 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { setPage } from '../../store/currentPageSlice';
-import SearchInput from '../../components/SearchInput/SearchInput';
-import SearchResults from '../../components/SearchResults/SearchResults';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useLocalStorage } from '../../hooks/local-storage-hook';
-import PokemonDetailPage from '../../components/PokemonDetailsPage/PokemonDetailsPage';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import NavigationButtons from '../../components/NavigationButtons/NavigationButtons';
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
-import {
-  useGetAllPokemonsQuery,
-  useGetPokemonByNameQuery,
-} from '../../services/pokemonApi';
-import { RootState } from '../../store/store';
-
+import { useLocalStorage } from '../../hooks/local-storage-hook';
+import { ISearchResults, Result } from '../../interfaces/results';
+import SearchInput from '../../components/SearchInput/SearchInput';
+import SearchResults from '../../components/SearchResults/SearchResults';
 import './home-page.css';
+import PokemonDetailPage from '../../components/PokemonDetailsPage/PokemonDetailsPage';
+import Cookies from 'js-cookie';
 
-const MainPage: React.FC = () => {
+interface ClientComponentProps {
+  allPokemonsData: ISearchResults;
+  pokemonData: Result[];
+  pokemonDetail: Result[];
+  currentPage: number;
+}
+
+export default function ClientComponent({
+  allPokemonsData,
+  pokemonData,
+  pokemonDetail,
+  currentPage,
+}: ClientComponentProps) {
+  const [term, setTerm] = useLocalStorage('term', '');
+  const [selectedPokemon, setSelectedPokemon] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [shouldThrowError, setShouldThrowError] = useState<boolean>(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const dispatch = useDispatch();
-  const currentPage = useSelector((state: RootState) => state.page);
-  const [term, setTerm] = useLocalStorage('term', '');
-  const [shouldThrowError, setShouldThrowError] = useState<boolean>(false);
-  const [selectedPokemon, setSelectedPokemon] = useState<string | null>(null);
-  const PAGE_SIZE = 6;
-
-  const { data: allPokemonsData, isFetching: isFetchingAllPokemons } =
-    useGetAllPokemonsQuery({
-      limit: PAGE_SIZE,
-      offset: currentPage * PAGE_SIZE,
-    });
-
-  const { data: pokemonData, isFetching: isFetchingPokemon } =
-    useGetPokemonByNameQuery(term, { skip: !term });
-
-  const isLoading = isFetchingAllPokemons || isFetchingPokemon;
 
   useEffect(() => {
-    const page = searchParams?.get('page');
-    const pokemon = searchParams?.get('pokemon');
-    const newPage = parseInt(page || '1', 10) - 1;
-
-    setSelectedPokemon(pokemon!);
-    if (newPage !== currentPage) {
-      dispatch(setPage(newPage));
-    }
+    const pokemonId = searchParams.get('pokemon');
+    setSelectedPokemon(pokemonId);
   }, [searchParams]);
 
-  useEffect(() => {
-    router.push(`${pathname}?page=${currentPage + 1}`);
-  }, [currentPage, pathname, router]);
+  const handleSearch = async (searchTerm: string) => {
+    setLoading(true);
+    Cookies.set('term', searchTerm);
+    setTerm(searchTerm);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTerm(event.target.value);
+    router.refresh();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setLoading(false);
+    if (term) setSelectedPokemon(null);
   };
 
-  const handleSearch = () => {};
+  const handlePageChange = async (newPage: number) => {
+    setLoading(true);
+    const params = new URLSearchParams({
+      page: newPage.toString(),
+      pokemon: selectedPokemon || '',
+    });
+    await router.push(`/?${params.toString()}`);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  };
+
+  const nextPage = () => {
+    const newPage = currentPage + 1;
+    handlePageChange(newPage);
+  };
+
+  const prevPage = () => {
+    const newPage = Math.max(1, currentPage - 1);
+    handlePageChange(newPage);
+  };
 
   const throwError = () => {
     setShouldThrowError(true);
@@ -67,48 +76,39 @@ const MainPage: React.FC = () => {
 
   if (shouldThrowError) throw new Error('This is a test error.');
 
-  const nextPage = () => dispatch(setPage(currentPage + 1));
-  const prevPage = () => dispatch(setPage(Math.max(0, currentPage - 1)));
-
   return (
     <div>
       <div className="top-panel">
-        <SearchInput
-          term={term}
-          onChange={handleInputChange}
-          onSearch={handleSearch}
-        />
+        <SearchInput term={term} onSearch={handleSearch} />
         <button onClick={throwError}>Throw Error</button>
         <ThemeToggle />
       </div>
       <section className="results">
-        {isLoading ? (
+        {loading ? (
           <div className="spinner" data-testid="spinner"></div>
         ) : (
           <>
             <SearchResults
               results={
                 term
-                  ? pokemonData
-                    ? [pokemonData]
-                    : []
-                  : allPokemonsData?.results || []
+                  ? (pokemonData as unknown as Result[])
+                  : (allPokemonsData?.results as unknown as Result[])
               }
             />
-            {selectedPokemon && <PokemonDetailPage />}
+            {selectedPokemon && (
+              <PokemonDetailPage pokemon={pokemonDetail[0] || []} />
+            )}
           </>
         )}
       </section>
-      {allPokemonsData && (
+      {!term && (
         <NavigationButtons
           currentPage={currentPage}
-          totalPages={Math.ceil(allPokemonsData.count / PAGE_SIZE)}
+          totalPages={Math.ceil(allPokemonsData.count / 6)}
           nextPage={nextPage}
           prevPage={prevPage}
         />
       )}
     </div>
   );
-};
-
-export default MainPage;
+}
